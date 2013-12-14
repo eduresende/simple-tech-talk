@@ -1,0 +1,7 @@
+Aplicação muito simples que fiz para apresentar uma tech talk de javascript na IntegraGRP
+
+O código apresentado está todo em tags <pre> no index
+
+Para acessar a interface de adminstração, basta acessar /secret_admin
+
+O index ficará observando o /current para saber qual é o slide a ser mostrado.
