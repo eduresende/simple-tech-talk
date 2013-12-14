@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>JavaScript</title>
+    <link rel="stylesheet" type="text/css" href="prettify2.css">
+    <style type="text/css">
+      pre { font-size: 1.2em; }
+      pre.prettyprint { width: 1000px; }
+      .prettyprint { display: none; }
+      #code-000, #code-024 { font-size: 2.5em; }
+      #code-023 { font-size: 1em; }
+    </style>
+    <script type="text/javascript" src="prettify.js"></script>
+  </head>
+  <body>
+
+<pre id="code-000" class="prettyprint linenums lang-js">
+/*
+ * Javascript
+ *
+ * - Objetos
+ * - Funções
+ * - Closure
+ * - Module
+*/
+</pre>
+
+<pre id="code-001" class="prettyprint linenums lang-js">
+/*
+ * Objetos
+ * =================================
+ *
+ * Tipos primitivos são number, string, boolean, null, undefined
+ *
+ * O resto é objeto
+ *
+ * Objetos são conjuntos de dados chave-valor
+ *
+ * Exemplos: array, function, regex, object
+ *
+ * Chave: pode ser qualquer string, incluindo ""
+ *
+ * Valor: poder ser qualquer coisa, exceto undefined
+ *
+*/
+
+var person = {
+  firstName: "Fulano",
+  lastName: "de Tal",
+  age: 25
+}
+
+person["firstName"] // Fulano
+
+person.age // 25
+
+person.money // undefined
+</pre>
+
+<pre id="code-002" class="prettyprint linenums lang-js">
+/*
+ * Valor: pode inclusive ser outro objeto,
+ *        possibilitando criação de estruturas complexas como arvores ou grafos
+*/
+
+person.car = { model: "Fusca", year: 1969 } // Atribuição direta
+
+person.car // { model: 'Fusca', year: 1969 }
+person.car.model // "Fusca"
+
+person.birthdate.month; // TypeError: Cannot read property 'month' of undefined
+
+person.birthdate && person.birthdate.month; // undefined
+</pre>
+
+<pre id="code-003" class="prettyprint linenums lang-js">
+/* Prototype
+ *
+ * Cada objeto guarda uma referência à um objeto protótipo,
+ * de onde ele pode herdar propriedades
+ * por padrão o protótipo é Object.prototype,
+ * mas um objeto pode ser escolhido como protótipo de outro
+*/
+
+Player = function(game) { this.favoriteGame = game };
+Player.prototype = person;
+
+player = new Player("tetris");
+player.firstName // "Fulano"
+player.favoriteGame // "tetris"
+
+/*
+ * Outra forma
+ */
+if (typeof Object.create !== 'function') {
+  Object.create = function(o) {
+    var F = function() {};
+    F.prototype = o;
+    return new F();
+  }
+}
+
+var employee = Object.create(person);
+employee.job = "Developer"
+employee.job // "Developer"
+employee.firstName // "Fulano"
+</pre>
+
+<pre id="code-004" class="prettyprint linenums lang-js">
+/*
+ * As propriedades do prototype são somente leitura
+ *
+ * Mudar o objeto Não muda seu prototype
+*/
+
+employee.firstName = "Beltrano"
+
+employee.firstName // "Beltrano"
+person.firstName; // "Fulano"
+
+
+/*
+ * Novas propriedades adicionadas ao prototype estarão
+ * disponíveis para o objeto
+*/
+
+person.weight = 80;
+
+employee.weight // 80
+</pre>
+
+<pre id="code-005" class="prettyprint linenums lang-js">
+/*
+ * Removendo propriedades
+ *
+*/
+
+employee.job // "Developer"
+delete employee.job;
+employee.job // undefined
+
+employee.firstName // Beltrano
+delete employee.firstName
+employee.firstName // Fulano - voltou a ser o valor do prototype
+
+employee.age // 25
+delete employee.age
+employee.age // 25 - não pode remover do prototype
+
+delete person.age
+employee.age // undefined
+</pre>
+
+<pre id="code-006" class="prettyprint linenums lang-js">
+/*
+ * Uma propriedade pode ser uma função
+ *
+*/
+
+var p = {
+  firstName: "Fulano",
+  lastName: "de Tal",
+  fullName: function() {
+    return this.firstName + " " + this.lastName;
+  }
+}
+
+p.fullName() // "Fulano de Tal"
+</pre>
+
+<pre id="code-007" class="prettyprint linenums lang-js">
+/*
+ * Funções
+ * =================================
+ *
+ * Funções são objetos (coleção de pares chave/valor com um prototype)
+ *
+ * O prototype de função é Function.prototype
+ *
+ * O prototype de Function.prototype é Object.prototype
+ *
+ * Funções tem mais duas propriedades adicionais escondidas
+ *  - Contexto
+ *  - Código
+ *
+*/
+
+function sum(a, b) {
+  return a + b;
+}
+</pre>
+
+<pre id="code-008" class="prettyprint linenums lang-js">
+// Funções podem ser guardadas em variáveis, objetos e arrays
+
+var sum = function(a, b) {
+  return a + b;
+}
+
+sum(3, 4) // 7
+
+// Funções podem ser passadas como parametro para outras funções
+
+function operation(func, a, b) {
+  return func(a, b)
+}
+
+operation(sum, 5, 3) // 8
+
+// Funções podem ser retornadas em outras funções
+
+if (typeof Object.create !== 'function') {
+  Object.create = function(o) {
+    var F = function() {};
+    F.prototype = o;
+    return new F();
+  }
+}
+</pre>
+
+<pre id="code-009" class="prettyprint linenums lang-js">
+// O nome da função é opcional.
+// Pode ser usado para recursividade:
+
+// fatorial de 5 == 1 * 2 * 3 * 4 * 5 == 120
+// fatorial de 0 == 1
+function factorial(n) {
+  if (n <= 1) {
+    return 1;
+  } else {
+    return n * factorial(n-1);
+  }
+}
+
+factorial(5) // 120
+
+// Função anônima
+var sum = function(a, b) {
+  return a + b;
+}
+
+sum.name // ''
+
+function subtract(a, b) {
+  return a - b;
+}
+
+subtract.name // 'subtract'
+</pre>
+
+<pre id="code-010" class="prettyprint linenums lang-js">
+// Funções podem ser definidas dentro de funções
+
+function outer(){
+
+  var name = "Fulano"
+
+  function inner() {
+    console.log(name);
+  }
+
+  inner();
+}
+
+outer() // "Fulano"
+</pre>
+
+<pre id="code-011" class="prettyprint linenums lang-js">
+/*
+ * THIS
+ *
+ * Funções podem ser invocadas.
+ *   - ao invocar, um numero de parametros diferente do numero de argumentos não causa erro
+ *   - não há verificação de tipos
+ *
+ * Ao serem invocadas elas recebem dois parametros adicionais:
+ *   arguments
+ *   e this
+ *
+ * O valor de 'this' é inicializado de acordo com o padrão de invocação
+ *
+ * Javascript possui 4 padrões de invocação:
+ *  - method
+ *  - function
+ *  - constructor
+ *  - apply
+ */
+</pre>
+
+<pre id="code-012" class="prettyprint linenums lang-js">
+// padrão Method
+
+var p = {
+  firstName: "Fulano",
+  lastName: "de Tal",
+  fullName: function() {
+    return this.firstName + " " + this.lastName;
+  }
+}
+
+p.fullName() // "Fulano de Tal"
+
+p.lastName = "da Silva";
+
+// o this é sempre avaliado no momento em que o método é chamado
+
+p.fullName() // "Fulano da Silva"
+</pre>
+
+<pre id="code-013" class="prettyprint linenums lang-js">
+// padrão Function
+
+sum(3, 4); // this == objeto global
+
+// O this receber o objeto global é um erro no design do javascript
+
+var p = {
+  firstName: "Eduardo",
+  lastName: "Resende",
+  initials: function() {
+    this.firstName[0] // "E"
+
+    function firstNameInitial(){
+      return this.firstName[0];
+    }
+
+    function lastNameInitial(){
+      return this.lastName[0];
+    }
+
+    return firstNameInitial() + lastNameInitial();
+  }
+}
+
+// p.initials() // TypeError: Cannot read property '0' of undefined
+// Isso é causado devido ao this dentro da função auxiliar não ser o objeto p
+</pre>
+
+<pre id="code-014" class="prettyprint linenums lang-js">
+// Solução: "that"
+
+var p = {
+  firstName: "Eduardo",
+  lastName: "Resende",
+  initials: function() {
+    // this.firstName[0] == "E"
+
+    that = this; // workaround <3
+
+    function firstNameInitial(){
+      return that.firstName[0];
+    }
+
+    function lastNameInitial(){
+      return that.lastName[0];
+    }
+
+    return firstNameInitial() + " " + lastNameInitial();
+  }
+}
+
+p.initials() // "E R"
+
+// Agora funciona pois o that guarda o this que queriamos, o contexto do objeto p
+
+// Funções auxiliares podem trazer os mesmos beneficios que
+// os metodos privados que usamos em ruby
+</pre>
+
+<pre id="code-015" class="prettyprint linenums lang-ruby">
+class Enrollment < Educacao::Model
+
+  def destroyable?
+    return unless persisted?
+
+    active? && !has_academic_record? && !has_movements?
+  end
+
+  private
+
+  def has_academic_record?
+    !AcademicRecord.by_enrollment_id(id).count.zero?
+  end
+
+  def has_movements?
+    !StudentSituationMovement.by_enrollment_id(id).count.zero?
+  end
+end
+</pre>
+
+<pre id="code-016" class="prettyprint linenums lang-js">
+// padrão Constructor
+//
+// Javascript é uma linguagem de herança prototipal - class free
+//   Objetos podem herdar propriedades diretamente de outros objetos
+//
+// Porem JS fornece uma sintaxe de criação de objetos que remete a linguagens classicas
+
+Player = function(game) { this.favoriteGame = game };
+Player.prototype = p;
+
+pl = new Player("tetris");
+
+pl.favoriteGame // "tetris"
+
+// Capitalização é uma convenção importante nesse estilo,
+// pois invocar essa função sem o prefixo new pode causar erros
+
+// Esse estilo não é recomendado
+</pre>
+
+<pre id="code-017" class="prettyprint linenums lang-js">
+// padrão Apply
+//
+// Eu posso usar um contexto diferente na minha função
+
+var p1 = {
+  firstName: "Eduardo",
+  lastName: "Resende",
+  fullName: function() {
+    return this.firstName + " " + this.lastName;
+  }
+}
+
+p1.fullName() // "Eduardo Resende"
+
+var p2 = {
+  firstName: "Fulano",
+  lastName: "de Tal",
+}
+
+p2.fullName() // TypeError: Object #Object has no method 'fullName'
+
+
+// Uso a funcao definida em p1, porem usando p2 como contexto
+
+p1.fullName.apply(p2); // "Fulano de Tal"
+</pre>
+
+<pre id="code-018" class="prettyprint linenums lang-js">
+/*
+ * Escopo
+ *
+ * Controla a visibilidade e ciclo de vida de variaveis e parametros
+ *
+ * Facilita a vida do programador
+ *   - evita conflitos de nomes
+ *   - libera memoria
+ *
+*/
+
+function fora(){
+  var name = "Fulano"
+
+  function dentro(){
+    var name = "Beltrano"
+    var age = 20
+
+    return name;
+  }
+
+  dentro() // Beltrano
+  name // Fulano
+  age // ReferenceError: age is not defined
+}
+
+fora();
+</pre>
+
+<pre id="code-019" class="prettyprint linenums lang-js">
+/*
+ * Javascript não tem escopo de bloco, mas sim de função
+ * variáveis devem ser declaradas no inicio da função.
+*/
+
+{
+  var name = "Edson";
+
+  {
+    var lastName = "Arantes";
+  }
+
+  console.log(name); // "Edson"
+  console.log(lastName); // "Arantes"
+}
+</pre>
+
+<pre id="code-020" class="prettyprint linenums lang-js">
+/*
+ * CLOSURE
+ *
+ * funções internas podem acessar variáveis e parametros da função externa
+ * exceto 'this' e 'arguments'
+ *
+ * Exemplo:
+*/
+
+var employee = {
+  name: "Fulano",
+  salary: 1000,
+  bonus: 5
+}
+
+// Problemas:
+// Valores podem ser acessados e modificados diretamente.
+// Falta de encapsulamento
+
+employee.salary = 50;
+
+console.log(employee.salary); // 50
+</pre>
+
+<pre id="code-021" class="prettyprint linenums lang-js">
+/*
+ * Module
+ *
+ * Usa funções e closure para criar uma interface, porem
+ * esconder os valores e as implementações.
+ *
+ *  Consiste de variavies e funções privadas
+ *  Cria funções publicas que tem acesso aos dados privados.
+ *
+ *  Elimina o problema das variáveis globais,
+ *  provê segurança e encapsulamento
+*/
+
+var employee = function() {
+  var salary = 1000,
+      bonus = 0.05;
+
+  return {
+    name: "Fulano",
+
+    changeSalary: function(increment) {
+      salary += Math.abs(increment);
+    },
+
+    getSalary: function(){
+      return salary * (1 + bonus);
+    }
+  }
+}(); // Função auto-executavel. Está executando a função e retornando o objeto
+</pre>
+
+<pre id="code-022" class="prettyprint linenums lang-js">
+// Exemplo passando parâmetros
+
+var employee = function(params) {
+  var salary = params.salary,
+      bonus = params.bonus;
+
+  return {
+    name: params.name,
+
+    changeSalary: function(increment) {
+      salary += Math.abs(increment);
+    },
+
+    getSalary: function(){
+      return salary * (1 + bonus);
+    }
+  }
+}
+
+e1 = employee({name: "Edson", salary: 3000, bonus: 0.10})
+
+console.log(e1.salary); // undefined
+console.log(e1.getSalary()); // 3300
+
+e1.changeSalary(-1000);
+console.log(e1.getSalary()); // 4400
+
+console.log(e1.name); // Edson
+e1.name = "Tostao"
+console.log(e1.name); // Tostao
+</pre>
+
+<pre id="code-023" class="prettyprint linenums lang-js">
+(function () {
+  function removeAllFields() {
+    $("#disciplines input.destroy").attr("value", true);
+    $("#disciplines div.discipline").hide();
+  }
+
+  function addDisciplines(event, stage) {
+    if (stage) {
+      var view = new DisciplinesRender({
+        stageId: stage.id,
+        container: $("#disciplines"),
+        template: $("#evaluation-criterion-disciplines-default-template")
+      });
+
+      view.render();
+
+      var url = Router.modal_curricular_panel_disciplines_path({
+        by_curricular_panel_stage_id: stage.id
+      });
+
+      $("#evaluation-criterion-discipline s.curricular-panel-discipline").data("modal-url", url);
+
+      $("#evaluation-criterion-disciplines").on("nestedForm:afterAdd", function () {
+        $(this).find(".curricular-panel-discipline").data("modal-url",
+          Router.modal_curricular_panel_disciplines_path({
+            by_curricular_panel_stage_id: stage.id
+          }));
+      });
+    }
+  }
+
+  $("#evaluation_criterion_curricular_panel_stage").change(removeAllFields);
+  $("#evaluation_criterion_curricular_panel_stage").change(addDisciplines);
+
+  var DisciplinesRender = function (options) {
+    this.stageId = options.stageId;
+    this.container = options.container;
+    this.template = options.template;
+  }
+
+  DisciplinesRender.prototype.render = function () {
+    if (this.stageId && this.stageId != "") {
+      var that = this;
+
+      $.getJSON(Router.discplines_curricular_panel_stages_path({ id: this.stageId }), function (data) {
+        that.renderItems(data);
+      });
+    }
+  }
+
+  DisciplinesRender.prototype.renderItems = function (data) {
+    var that = this;
+
+    _(data).each(function (discipline, index) {
+      var binds = {};
+      binds["uuid-evaluation-criterion-disciplines"] = _.uniqueId('fresh-');
+      binds["discipline_name"] = discipline.discipline;
+      binds["discipline_id"] = discipline.id;
+
+      var template = $(that.template.mustache(binds));
+
+      that.append(template);
+    });
+  }
+
+  DisciplinesRender.prototype.append = function (element) {
+    this.container.prepend(element);
+  }
+})();
+</pre>
+
+<pre id="code-024" class="prettyprint linenums lang-js">
+/*
+ *
+ * Fontes:
+ * Livro: Javascript The Good Parts
+ * Blog: simplesideias.com.br
+ *
+ *
+ * Obrigado!
+ *
+*/
+</pre>
+
+    <script src="jquery-2.0.3.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      $(document).ready(function(){
+        prettyPrint();
+
+        var current;
+        function getCurrent() {
+          $.ajax({
+            url: "/current",
+          }).done(function(data) {
+            if (current != data) {
+              current = data;
+              $('.prettyprint').hide();
+              $('#code-' + current).fadeIn("slow");
+            }
+          });
+        }
+        setInterval(function () { getCurrent(); }, 2000);
+      });
+    </script>
+  </body>
+</html>

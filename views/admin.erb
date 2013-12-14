@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Admin</title>
+  </head>
+
+  <body>
+    <p>
+    <% if $current_page > 0 %>
+        <a href="/previous" >Previous</a> --------
+      <% end %>
+
+      <%= $current_page %> --------
+
+      <% if $current_page < $page_count %>
+        <a href="/next" >Next</a>
+      <% end %>
+    </p>
+  </body>
+</html>
+
